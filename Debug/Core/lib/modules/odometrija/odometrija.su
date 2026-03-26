@@ -1,0 +1,2 @@
+odometrija.c:30:6:odom_update	32	static
+odometrija.c:49:7:normalize_rad_angle	24	static

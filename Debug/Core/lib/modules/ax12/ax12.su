@@ -1,0 +1,5 @@
+ax12.c:10:6:ax_goal_position	32	static
+ax12.c:22:6:ax_led_state	24	static
+ax12.c:31:6:ax_send_msg	32	static
+ax12.c:51:6:ax_send_byte	16	static
+ax12.c:57:6:ax_send_byte_array	24	static
