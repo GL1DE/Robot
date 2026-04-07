@@ -1,0 +1,2 @@
+pozicija.c:36:6:robot_set_pose_ref	16	static
+pozicija.c:47:6:position_control_loop	16	static
