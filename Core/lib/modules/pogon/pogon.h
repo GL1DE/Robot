@@ -12,8 +12,8 @@
 #include "main.h"
 
 #define MOTOR_VOLTAGE 		12.0 // [V]
-#define MOTOR_ARR			2099
-#define MOTOR_WHEEL_SEPARATION 0.18-0.0302 //ZAMENITI ZA NASU VREDNOST 30.2
+#define MOTOR_ARR			2099.0
+#define MOTOR_WHEEL_SEPARATION 0.2847761 * 0.5
 
 typedef enum
 {
@@ -24,6 +24,15 @@ typedef enum
 extern volatile float
 vr_m,
 vl_m;
+
+extern volatile float
+error_l,
+error_r,
+motor_l_prev_error,
+motor_r_prev_error;
+
+extern const float
+v_max;
 
 extern volatile float
 vr_ref,

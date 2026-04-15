@@ -10,4 +10,6 @@
 
 void user_main();
 
+void pokupi_stek();
+
 #endif /* INC_USER_MAIN_H_ */

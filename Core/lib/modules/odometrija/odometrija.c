@@ -10,12 +10,16 @@
 
 #include <math.h>
 
-const float
+float
 C_INC2RAD = 0.00076699039, // rad/inc
-radius_tocka = 0.0688 / 2, // [m] PROMENITI VREDNOST NA PRECNIK NASEG ENKODERSKOG TOCKA
-rastojanje_tockova = 0.283; // [m] PROMENITI VREDNOST NA RASTOJANJE IZMEDJU ENKODERSKIH TOCKOVA
+radius_tocka = 0.0695635 * 0.5, // [m] prethothdno najbolje
+rastojanje_tockova = 0.2847761; // [m] prethodno najbolje
 
 float dt = 0.002;
+
+int32_t
+enc_r,
+enc_l;
 
 volatile float
 x = 0,
@@ -29,8 +33,8 @@ v_l = 0;
 
 void odom_update()
 {
-	int32_t enc_l = -enc1_get_delta_inc();
-	int32_t enc_r = -enc2_get_delta_inc();
+	enc_r = enc1_get_delta_inc();
+	enc_l = enc2_get_delta_inc();
 
 	v_r = enc_r * C_INC2RAD * radius_tocka / dt;
 	v_l = enc_l * C_INC2RAD * radius_tocka / dt;
@@ -41,8 +45,8 @@ void odom_update()
 	theta += w * dt;
 	theta = normalize_rad_angle(theta);
 
-	x -= v * dt * cosf(theta + w * dt * 0.5);
-	y -= v * dt * sinf(theta + w * dt * 0.5);
+	x += v * dt * cosf(theta + w * dt * 0.5);
+	y += v * dt * sinf(theta + w * dt * 0.5);
 
 }
 

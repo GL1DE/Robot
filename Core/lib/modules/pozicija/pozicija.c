@@ -13,12 +13,12 @@
 int flg_reverse = 0;
 
 const float // ove menjati
-Kp_rot = 3.0,
-Kp_trans = 4.0;
+Kp_rot = 3.9,
+Kp_trans = 10.0;
 
 const float
-eps_theta = 0.01745329251994329576923690768489*3, // 1 deg * x Probati smanjiti na pola stepena
-eps_distance = 0.01*3; // 1cm * x Treba smanjiti u miliimetar
+eps_theta = 0.01745329251994329576923690768489, // 1 deg * x Probati smanjiti na pola stepena
+eps_distance = 0.01; // 1cm * x Treba smanjiti u miliimetar
 
 volatile MotionState_t current_motion_state = IDLE;
 volatile float x_ref, y_ref, theta_ref;
@@ -33,12 +33,13 @@ distance;
 
 float v_ref = 0, w_ref = 0;
 
-void robot_set_pose_ref(float x, float y)
+void robot_set_pose_ref(float x, float y, float theta)
 {
 	if (current_motion_state == IDLE)
 	{
 		x_ref = x;
 		y_ref = y;
+		theta_ref = theta;
 
 		current_motion_state = ROTATE_TO_GOAL;
 	}
@@ -49,7 +50,7 @@ void position_control_loop()
 
 	dx = x_ref - x;
 	dy = y_ref - y;
-	phi = normalize_rad_angle(atan2f(dy, dx));
+	phi = atan2f(dy, dx);
 
 	if(flg_reverse)
 		phi_error = normalize_rad_angle(phi - theta + M_PI);
@@ -61,15 +62,34 @@ void position_control_loop()
 
 	switch(current_motion_state)
 	{
+	case IDLE:
+
+			v_ref = 0.0;
+			w_ref = 0.0;
+			error_l = 0.0;
+			error_r = 0.0;
+			motor_l_prev_error = 0.0;
+			motor_r_prev_error = 0.0;
+
+		break;
+
 	case ROTATE_TO_GOAL:
 
 			v_ref = 0.0;
-			w_ref = Kp_rot * phi_error;
+			if (phi_error >= 0)
+				w_ref = Kp_rot * phi_error;
 
-			if (fabsf(phi_error) < eps_theta && w == 0)
+			if (phi_error < 0)
+				w_ref = -Kp_rot * phi_error;
+
+			if (fabsf(phi_error) < eps_theta && w == 0 && w_ref < 0.05)
 			{
 				v_ref = 0.0;
 				w_ref = 0.0;
+				error_l = 0.0;
+				error_r = 0.0;
+				motor_l_prev_error = 0.0;
+				motor_r_prev_error = 0.0;
 				current_motion_state = TRANSLATE_TO_GOAL;
 			}
 
@@ -85,21 +105,56 @@ void position_control_loop()
 			if (distance > 0.1) //Ako nije stigao na odrediste ispravi robota
 				w_ref = Kp_rot * phi_error;
 
-			if (fabsf(phi_error) > M_PI_2) //Ako je otisao predaleko vrati ga nazad
-				v_ref = -v_ref;
+			if (distance < 0.1)
+				w_ref = 0;
 
-			if (distance < eps_distance && v == 0)
+//			if (vr_ref > v_max)
+//					vr_ref = v_max;
+//			if (vr_ref < -v_max)
+//					vr_ref = -v_max;
+//
+//			if (vl_ref > v_max)
+//					vl_ref = v_max;
+//			if (vl_ref < -v_max)
+//					vl_ref = -v_max;
+
+//			if (fabsf(phi_error) > M_PI_2) //Ako je otisao predaleko vrati ga nazad
+//				v_ref = -v_ref;
+
+			if (distance < eps_distance && v == 0 && v_ref < 0.05)
 			{
 				v_ref = 0.0;
 				w_ref = 0.0;
-				current_motion_state = GOAL_REACHED;
+				error_l = 0.0;
+				error_r = 0.0;
+				motor_l_prev_error = 0.0;
+				motor_r_prev_error = 0.0;
+				current_motion_state = ROTATE_TO_THETA;
 			}
 
+		break;
+
+	case ROTATE_TO_THETA:
+		v_ref = 0.0;
+		w_ref = Kp_rot * theta_error;
+
+		if (fabsf(theta_error) < eps_theta && w == 0)
+		{
+			v_ref = 0.0;
+			w_ref = 0.0;
+			error_l = 0.0;
+			error_r = 0.0;
+			motor_l_prev_error = 0.0;
+			motor_r_prev_error = 0.0;
+			current_motion_state = GOAL_REACHED;
+		}
 		break;
 
 	case GOAL_REACHED:
 		current_motion_state = GOAL_REACHED;
 		flg_reverse = 0;
+		v_ref = 0.0;
+		w_ref = 0.0;
 		break;
 	}
 

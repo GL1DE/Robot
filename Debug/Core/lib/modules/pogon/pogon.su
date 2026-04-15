@@ -1,6 +1,6 @@
-pogon.c:42:6:motor_set_ref_vel	24	static
-pogon.c:60:6:motor_control_loop	80	static
-pogon.c:163:6:set_motor1_dir	16	static
-pogon.c:177:6:set_motor2_dir	16	static
-pogon.c:191:6:set_motor1_voltage	24	static
-pogon.c:213:6:set_motor2_voltage	24	static
+pogon.c:60:6:motor_set_ref_vel	24	static
+pogon.c:78:6:motor_control_loop	88	static
+pogon.c:221:6:set_motor1_dir	16	static
+pogon.c:235:6:set_motor2_dir	16	static
+pogon.c:249:6:set_motor1_voltage	24	static
+pogon.c:271:6:set_motor2_voltage	24	static
